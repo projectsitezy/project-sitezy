@@ -13,6 +13,8 @@ import { FAQ } from "@/components/FAQ";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
+import { PopupBanner } from "@/components/PopupBanner";
+import { StickyMobileCTA } from "@/components/StickyMobileCTA";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -68,6 +70,8 @@ function Index() {
       </main>
       <Footer />
       <WhatsAppFab />
+      <StickyMobileCTA />
+      <PopupBanner />
       <Toaster position="top-center" richColors />
     </div>
   );
