@@ -377,7 +377,7 @@ function PackagesPanel() {
     await supabase.from("packages").delete().eq("id", id);
     refresh();
   };
-  const save = async (id: string, patch: Record<string, unknown>) => {
+  const save = async (id: string, patch: any) => {
     const { error } = await supabase.from("packages").update(patch).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Saved");

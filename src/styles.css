@@ -82,6 +82,33 @@
   --shadow-glow: 0 0 60px -10px oklch(0.86 0.06 75 / 0.5);
 }
 
+.dark {
+  --background: oklch(0.16 0.008 60);
+  --foreground: oklch(0.95 0.005 80);
+  --card: oklch(0.20 0.01 60);
+  --card-foreground: oklch(0.95 0.005 80);
+  --popover: oklch(0.20 0.01 60);
+  --popover-foreground: oklch(0.95 0.005 80);
+  --primary: oklch(0.95 0.005 80);
+  --primary-foreground: oklch(0.16 0.008 60);
+  --secondary: oklch(0.24 0.012 60);
+  --secondary-foreground: oklch(0.95 0.005 80);
+  --muted: oklch(0.22 0.01 60);
+  --muted-foreground: oklch(0.65 0.012 65);
+  --accent: oklch(0.32 0.025 70);
+  --accent-foreground: oklch(0.95 0.005 80);
+  --border: oklch(0.28 0.012 65);
+  --input: oklch(0.28 0.012 65);
+  --ring: oklch(0.5 0.03 70);
+  --shadow-luxe: 0 30px 60px -30px oklch(0 0 0 / 0.5), 0 18px 36px -18px oklch(0 0 0 / 0.3);
+  --gradient-warm: radial-gradient(ellipse at top, oklch(0.35 0.04 70 / 0.4), transparent 60%);
+}
+
+.dark .glass {
+  background: color-mix(in oklab, oklch(0.20 0.01 60) 70%, transparent);
+  border-color: color-mix(in oklab, white 8%, transparent);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
