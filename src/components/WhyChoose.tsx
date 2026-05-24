@@ -15,7 +15,7 @@ export function WhyChoose() {
         />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {whyChoose.map((item, i) => {
-            const Icon = (Icons as Record<string, React.ComponentType<{ size?: number; className?: string }>>)[item.icon] ?? Icons.Sparkles;
+            const Icon = ((Icons as unknown as Record<string, typeof Icons.Sparkles>)[item.icon]) ?? Icons.Sparkles;
             return (
               <Reveal key={item.title} delay={i * 0.05}>
                 <TiltCard className="h-full">
