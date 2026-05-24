@@ -1,0 +1,41 @@
+import { site } from "@/data/site";
+import { Logo } from "./Logo";
+
+export function Footer() {
+  return (
+    <footer className="relative border-t border-foreground/10 bg-gradient-to-b from-transparent to-beige-soft/40">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 py-14">
+        <div className="grid gap-10 md:grid-cols-3">
+          <div>
+            <Logo />
+            <p className="mt-4 max-w-xs text-sm text-foreground/60">
+              Premium web solutions for ambitious brands across Bangladesh.
+            </p>
+          </div>
+          <div className="text-sm">
+            <div className="mb-3 text-xs uppercase tracking-[0.2em] text-foreground/50">Explore</div>
+            <ul className="space-y-2 text-foreground/75">
+              <li><a href="#services" className="hover:text-foreground">Services</a></li>
+              <li><a href="#packages" className="hover:text-foreground">Packages</a></li>
+              <li><a href="#portfolio" className="hover:text-foreground">Portfolio</a></li>
+              <li><a href="#faq" className="hover:text-foreground">FAQ</a></li>
+            </ul>
+          </div>
+          <div className="text-sm">
+            <div className="mb-3 text-xs uppercase tracking-[0.2em] text-foreground/50">Contact</div>
+            <ul className="space-y-2 text-foreground/75">
+              <li><a href={`https://wa.me/${site.whatsappIntl}`} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">WhatsApp · {site.whatsapp}</a></li>
+              <li><a href={`mailto:${site.email}`} className="hover:text-foreground">{site.email}</a></li>
+              <li><a href={site.socials.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Facebook</a></li>
+              <li><a href={site.socials.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Instagram</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-foreground/10 pt-6 text-xs text-foreground/50 md:flex-row">
+          <div>© {new Date().getFullYear()} Project SITEZY. All rights reserved.</div>
+          <div>Crafted with care in Bangladesh.</div>
+        </div>
+      </div>
+    </footer>
+  );
+}
