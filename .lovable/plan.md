@@ -1,75 +1,70 @@
-# Project SITEZY — Phase 1 Build Plan
+# Phase 2 — Project SITEZY
 
-A premium, luxury-minimal single-page marketing site inspired by SoftTank's feel, plus a full order submission flow with payment proof. Admin CMS and full editability come in Phase 2.
+Phase 1 e marketing site + order form ready ache. Ekhon Phase 2 te ja ja chilo seta build korbo:
 
-## Stack & Setup
-- TanStack Start (existing) + Tailwind v4
-- **Lovable Cloud** for backend (orders + file storage for payment screenshots)
-- Logo: upload, remove beige background → transparent PNG in `src/assets/`
+## 1. Authentication + Admin Role
+- Email/password login (Google sign-in optional, bolun lagbe kina)
+- `profiles` table + `user_roles` table (enum: `admin`, `user`) — secure role check via `has_role()` SECURITY DEFINER function
+- `/login` public route, `/admin/*` protected via `_authenticated` layout + admin role guard
+- Apnar nijer admin account ekta seed korbo (apnar email den)
 
-## Design System
-- Background: clean white (`oklch(0.99 0 0)`)
-- Foreground: charcoal (`oklch(0.18 0.01 60)`)
-- Accent: soft beige/warm neutral (`oklch(0.88 0.04 75)`)
-- Subtle warm gradient glow for hero & cards
-- Typography: serif display (Instrument Serif / similar) headings + Inter body — luxury minimal
-- Generous spacing, glassmorphism cards, fine 1px borders, soft shadows
+## 2. Admin Dashboard (`/admin`)
+- **Orders panel**: shob orders table view, filter by status (pending / in-progress / completed / cancelled), search by phone/name, screenshot + brief file preview, status update, notes, CSV export
+- **Contact messages panel**: inbox view, mark as read/replied
+- **Analytics**: total orders, revenue, conversion, package breakdown, last 30 days chart (Recharts)
 
-## Animations
-- Lenis smooth scroll
-- Framer Motion: section fade-up on scroll, stagger reveals
-- 3D tilt on package & portfolio cards (mouse parallax)
-- Floating glow blobs in hero
-- Premium loader on initial paint
-- Smooth hover states throughout
+## 3. Live CMS Editing (Admin only)
+DB-backed content jate code change na kore admin theke edit kora jay:
+- `site_settings` (key/value JSONB) — hero headline (Bangla + English), subheadline, CTA labels, contact info, WhatsApp number, social links, popup banner config
+- `packages` table — name, price, features[], badge, order, active flag → Packages section ei table theke read korbe
+- `reviews` table — name, role, rating, text, avatar, active
+- `portfolio_items` table — title, category, image, url, active
+- `faqs` table — question, answer, order, active
+- Admin UI: inline forms with image upload to storage, drag-to-reorder, preview
 
-## Page Sections (single route `/`)
-1. **Sticky Navbar** — logo top-right (per brief), nav links left/center: Home · Services · Packages · Portfolio · Reviews · FAQ · Contact. Mobile drawer menu.
-2. **Hero** — Bangla headline + subheadline + sub-text, CTAs "View Packages" (scroll) + "WhatsApp Now" (wa.me/8801886112667), floating glow, scroll cue.
-3. **Why Choose SITEZY** — 7 reason cards (Fast Delivery, Affordable, Mobile Responsive, SEO Ready, Premium Design, Full Support, Secure) with icons + tilt.
-4. **Services** — core service offerings as cards.
-5. **Portfolio** — static showcase grid (6 demo cards: image, title, category, "Live Preview" button). Tilt effect. *(Admin-editable in Phase 2 — hardcoded for now)*
-6. **Packages** — 4 animated pricing cards: Starter ৳449, Business ৳999, Small E-commerce ৳1899, Premium E-commerce ৳3499. "Popular" badge on Business. Each opens order modal.
-7. **Trust Counters** — animated count-up: Websites Sold, Happy Clients, Active Projects, Satisfaction %.
-8. **Client Reviews** — slider/carousel of testimonials.
-9. **FAQ** — premium accordion (Radix).
-10. **Contact** — form (name/email/message) + social links (FB, IG, email, WhatsApp).
-11. **Footer** — brand mark, links, socials, copyright.
+## 4. Popup Banner
+- Promotional modal/toast (admin-configurable: title, message, CTA, image, schedule on/off, frequency: once-per-session / always)
+- Smooth entry animation, dismissable, localStorage memory
 
-## Order Flow (Lovable Cloud)
-Modal opened from any package card:
-- Step 1 — Details: name, phone, email, package (preselected), requirements (textarea), budget, optional file upload (brief/reference)
-- Step 2 — Payment proof: choose method (Bkash/Nagad/Rocket/Upay) → show payment number → enter transaction ID + sender number + screenshot upload
-- Submit → insert into `orders` table, upload files to storage, show success toast
-- WhatsApp deeplink as fallback CTA
+## 5. Dark / Light Mode
+- Theme toggle in navbar, `next-themes` style implementation, semantic tokens already in `styles.css` — extend `.dark` overrides for full coverage
+- Persist preference, system-preference default
+- SSR-safe (no flash) via inline `ScriptOnce`
 
-## Floating Elements
-- Floating WhatsApp button (bottom-right, pulse glow)
-- Sticky "Order Now" CTA on mobile
+## 6. Email Notifications
+- Email domain setup (Lovable Cloud managed)
+- Transactional emails:
+  - New order → notify admin (with order details + screenshot link)
+  - Order confirmation → customer
+  - Contact form → notify admin
+  - Order status change → customer
+- Triggered via server functions on insert/update
 
-## Database (Lovable Cloud)
-- `orders` table: id, name, phone, email, package_name, package_price, requirements, budget, brief_file_url, payment_method, transaction_id, sender_number, screenshot_url, status (default 'pending'), created_at
-- RLS: anonymous insert allowed; select restricted (Phase 2 admin will read)
-- Storage bucket `order-uploads` (public read for now, or signed URLs)
+## 7. Live Chat
+- Floating chat widget (apni ki chan?):
+  - **Option A**: Tawk.to / Crisp embed (free, instant)
+  - **Option B**: Custom DB-backed chat (heavier — Phase 3 candidate)
+- Default suggestion: Tawk.to/Crisp, since WhatsApp FAB already covers async
 
-## SEO
-- Per-route `head()` with title, description, OG tags
-- JSON-LD Organization + Service schema
-- `robots.txt` + `sitemap.xml` server route
-- Semantic HTML, single H1, alt text, lazy images
+## 8. Sticky CTA polish + SEO refinements
+- Sticky bottom-bar CTA on mobile ("Order Now" + WhatsApp)
+- `sitemap.xml` dynamic from active portfolio/packages
+- JSON-LD: `Service`, `Product` (per package), `FAQPage`
 
-## Out of Scope (Phase 2)
-- Admin dashboard / CMS editing of all content
-- Auth (owner signup)
-- Popup banner system with countdown
-- Theme/logo/text/package live editing from UI
-- Dark mode toggle
-- Live chat
-- Email notifications on order
+---
 
 ## Technical Notes
-- Hardcode packages, reviews, portfolio, FAQ as typed data in `src/data/` — easy to refactor into DB-backed in Phase 2
-- All copy stored in one `content.ts` for quick edits
-- Mobile-first, tested at 375 / 768 / 1440
+- **DB migrations** (single batch): `profiles`, `user_roles` + enum + `has_role()`, `site_settings`, `packages`, `reviews`, `portfolio_items`, `faqs`, `popup_banner`, all with RLS (public SELECT where `active=true`, admin-only write via `has_role(auth.uid(),'admin')`)
+- **Data fetching**: TanStack Query `useSuspenseQuery` + `createServerFn` with `requireSupabaseAuth` for admin mutations; public reads via server fn with `supabaseAdmin` scoped projection
+- **Image uploads**: reuse `order-uploads` bucket pattern, new `site-assets` public bucket for CMS images
+- **Refactor**: replace hardcoded `src/data/site.ts` content with DB reads via loaders
 
-After you upload the logo and approve, I'll switch to build mode and ship it.
+---
+
+## Questions before I start
+1. **Admin email** — kon email diye admin account toiri korbo? (apnar email den)
+2. **Google login** dorkar nai shudhu apnar admin er jonno? Naki customer-facing future feature er jonno chai?
+3. **Live chat**: Tawk.to/Crisp embed (recommended, 5 min setup) — naki skip korbo ekhon?
+4. **Email domain**: kono custom domain ache (e.g. `projectsitezy.com`) jeta email pathate use korbo? Na thakle skip kore default e thakbe.
+
+Ei 4 ta uttor pele full Phase 2 implement shuru kore dibo.
