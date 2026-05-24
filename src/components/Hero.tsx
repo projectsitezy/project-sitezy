@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { site } from "@/data/site";
-import heroGlow from "@/assets/hero-glow.png";
 
 export function Hero() {
   const wa = `https://wa.me/${site.whatsappIntl}?text=${encodeURIComponent("Hi Project SITEZY, I want a website.")}`;
@@ -10,14 +9,13 @@ export function Hero() {
       {/* Background glow */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-0 h-[600px] w-[1200px] -translate-x-1/2 opacity-80" style={{ background: "var(--gradient-warm)" }} />
-        <motion.img
-          src={heroGlow}
-          alt=""
+        <motion.div
           aria-hidden
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 2, ease: "easeOut" }}
-          className="absolute left-1/2 top-10 h-[700px] w-[700px] -translate-x-1/2 select-none"
+          className="absolute left-1/2 top-20 h-[500px] w-[500px] -translate-x-1/2 rounded-full"
+          style={{ background: "var(--gradient-glow)", filter: "blur(40px)" }}
         />
       </div>
 
