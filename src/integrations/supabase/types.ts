@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          brief_file_url: string | null
+          budget: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          package_name: string
+          package_price: number
+          payment_method: string | null
+          phone: string
+          requirements: string | null
+          screenshot_url: string | null
+          sender_number: string | null
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          brief_file_url?: string | null
+          budget?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          package_name: string
+          package_price: number
+          payment_method?: string | null
+          phone: string
+          requirements?: string | null
+          screenshot_url?: string | null
+          sender_number?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          brief_file_url?: string | null
+          budget?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          package_name?: string
+          package_price?: number
+          payment_method?: string | null
+          phone?: string
+          requirements?: string | null
+          screenshot_url?: string | null
+          sender_number?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
