@@ -18,21 +18,21 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { redirect } = Route.useSearch();
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (loading) return;
+    if (authLoading) return;
     if (!user) return;
-    navigate({ to: isAdmin ? "/admin" : "/" });
-  }, [user, isAdmin, loading, navigate]);
+    navigate({ to: isAdmin ? "/admin" : (redirect ?? "/") });
+  }, [user, isAdmin, authLoading, redirect, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
@@ -51,11 +51,11 @@ function LoginPage() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  const authBusy = loading || loading;
+  const authBusy = authLoading || submitting;
 
   return (
     <div className="grid min-h-screen place-items-center bg-background px-4 py-16">
