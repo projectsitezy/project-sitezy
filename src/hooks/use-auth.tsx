@@ -19,50 +19,60 @@ const AuthContext = createContext<AuthState>({
   signOut: async () => {},
 });
 
+async function fetchIsAdmin(userId: string) {
+  const { data } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  return Boolean(data);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [roleLoading, setRoleLoading] = useState(true);
   const qc = useQueryClient();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    let mounted = true;
+
+    const applySession = async (newSession: Session | null) => {
+      if (!mounted) return;
       setSession(newSession);
       setUser(newSession?.user ?? null);
       if (newSession?.user) {
-        // defer role lookup to avoid deadlock inside listener
-        setTimeout(async () => {
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", newSession.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
-          setIsAdmin(Boolean(data));
-        }, 0);
+        setRoleLoading(true);
+        const admin = await fetchIsAdmin(newSession.user.id);
+        if (!mounted) return;
+        setIsAdmin(admin);
+        setRoleLoading(false);
       } else {
         setIsAdmin(false);
+        setRoleLoading(false);
       }
-      qc.invalidateQueries();
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      // defer to avoid deadlock inside listener
+      setTimeout(() => {
+        applySession(newSession);
+        qc.invalidateQueries();
+      }, 0);
     });
 
     supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.session.user.id)
-          .eq("role", "admin")
-          .maybeSingle();
-        setIsAdmin(Boolean(roleData));
-      }
-      setLoading(false);
+      await applySession(data.session);
+      if (mounted) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [qc]);
 
   const signOut = async () => {
@@ -70,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, loading: loading || roleLoading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
