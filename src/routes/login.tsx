@@ -102,6 +102,10 @@ function LoginPage() {
           >
             {mode === "login" ? "Need an account? Sign up" : "Already have an account? Sign in"}
           </button>
+
+          <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground/80">
+            First-time admin? Sign up with <span className="font-medium text-foreground/80">evansheikh69@gmail.com</span> to claim admin access automatically.
+          </p>
         </div>
       </div>
     </div>

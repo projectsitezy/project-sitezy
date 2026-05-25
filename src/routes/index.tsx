@@ -15,6 +15,7 @@ import { Footer } from "@/components/Footer";
 import { WhatsAppFab } from "@/components/WhatsAppFab";
 import { PopupBanner } from "@/components/PopupBanner";
 import { StickyMobileCTA } from "@/components/StickyMobileCTA";
+import { LiveChat } from "@/components/LiveChat";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -72,6 +73,7 @@ function Index() {
       <WhatsAppFab />
       <StickyMobileCTA />
       <PopupBanner />
+      <LiveChat />
       <Toaster position="top-center" richColors />
     </div>
   );
