@@ -56,9 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
       // defer to avoid deadlock inside listener
       setTimeout(() => {
+        if (mounted) setLoading(true);
         applySession(newSession);
         qc.invalidateQueries();
       }, 0);
@@ -75,12 +78,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [qc]);
 
+  useEffect(() => {
+    if (!roleLoading) {
+      setLoading(false);
+    }
+  }, [roleLoading]);
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading: loading || roleLoading, signOut }}>
+    <AuthContext.Provider
+      value={{ user, session, isAdmin, loading: loading || roleLoading, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
