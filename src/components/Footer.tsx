@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { ShieldCheck } from "lucide-react";
 import { site } from "@/data/site";
 import { Logo } from "./Logo";
 
@@ -29,6 +31,21 @@ export function Footer() {
               <li><a href={site.socials.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Facebook</a></li>
               <li><a href={site.socials.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Instagram</a></li>
             </ul>
+
+            <div className="mt-6 rounded-2xl border border-foreground/10 bg-card/70 p-4">
+              <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground/50">
+                <ShieldCheck size={14} className="text-foreground/60" />
+                Admin
+              </div>
+              <p className="text-sm text-foreground/65">Site owner login and dashboard access.</p>
+              <Link
+                to="/login"
+                search={{ redirect: "/admin" }}
+                className="mt-3 inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground transition hover:opacity-90"
+              >
+                Admin Login
+              </Link>
+            </div>
           </div>
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-foreground/10 pt-6 text-xs text-foreground/50 md:flex-row">
