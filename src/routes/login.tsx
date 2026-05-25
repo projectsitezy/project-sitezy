@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
+import { useAuth } from "@/hooks/use-auth";
 
 const searchSchema = z.object({ redirect: z.string().optional().catch("/admin") });
 
@@ -17,10 +18,17 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { redirect } = Route.useSearch();
+  const { user, isAdmin, loading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) return;
+    navigate({ to: isAdmin ? "/admin" : "/" });
+  }, [user, isAdmin, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,16 +38,15 @@ function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/admin" },
+          options: { emailRedirectTo: window.location.origin + "/login?redirect=/admin" },
         });
         if (error) throw error;
-        toast.success("Account created. Check your email to confirm.");
+        toast.success("Admin account created. You can log in now.");
         setMode("login");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Welcome back.");
-        navigate({ to: redirect ?? "/admin" });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
@@ -47,6 +54,8 @@ function LoginPage() {
       setLoading(false);
     }
   };
+
+  const authBusy = loading || loading;
 
   return (
     <div className="grid min-h-screen place-items-center bg-background px-4 py-16">
@@ -87,10 +96,10 @@ function LoginPage() {
             </div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={authBusy}
               className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
             >
-              {loading && <Loader2 size={14} className="animate-spin" />}
+              {authBusy && <Loader2 size={14} className="animate-spin" />}
               {mode === "login" ? "Sign in" : "Create account"}
             </button>
           </form>
@@ -104,7 +113,7 @@ function LoginPage() {
           </button>
 
           <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground/80">
-            First-time admin? Sign up with <span className="font-medium text-foreground/80">evansheikh69@gmail.com</span> to claim admin access automatically.
+            First-time admin? Sign up with <span className="font-medium text-foreground/80">evansheikh69@gmail.com</span> and the same email will get admin access automatically.
           </p>
         </div>
       </div>
