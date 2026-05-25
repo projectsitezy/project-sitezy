@@ -27,7 +27,9 @@ export function Contact() {
     }
     setLoading(true);
     const { error } = await supabase.from("contact_messages").insert({
-      name: name.trim(), email: email.trim(), message: message.trim(),
+      name: name.trim(),
+      email: email.trim(),
+      message: message.trim(),
     });
     setLoading(false);
     if (error) {
@@ -35,7 +37,9 @@ export function Contact() {
       return;
     }
     toast.success("Message sent — we'll reply soon.");
-    setName(""); setEmail(""); setMessage("");
+    setName("");
+    setEmail("");
+    setMessage("");
   };
 
   return (
@@ -45,19 +49,47 @@ export function Contact() {
 
         <div className="grid gap-10 md:grid-cols-2">
           <Reveal>
-            <form onSubmit={submit} className="space-y-4 rounded-3xl border border-foreground/8 bg-white p-7 shadow-luxe">
-              <input type="text" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} className="hidden" aria-hidden />
+            <form
+              onSubmit={submit}
+              className="space-y-4 rounded-3xl border border-foreground/8 bg-white p-7 shadow-luxe"
+            >
+              <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={hp}
+                onChange={(e) => setHp(e.target.value)}
+                className="hidden"
+                aria-hidden
+              />
               <div className="grid gap-2">
                 <Label htmlFor="c-name">Name</Label>
-                <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
+                <Input
+                  id="c-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={100}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-email">Email</Label>
-                <Input id="c-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={120} />
+                <Input
+                  id="c-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  maxLength={120}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="c-msg">Message</Label>
-                <Textarea id="c-msg" rows={5} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={1500} />
+                <Textarea
+                  id="c-msg"
+                  rows={5}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  maxLength={1500}
+                />
               </div>
               <Button type="submit" className="w-full rounded-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -68,29 +100,55 @@ export function Contact() {
 
           <Reveal delay={0.1}>
             <div className="space-y-3">
-              <a href={`https://wa.me/${site.whatsappIntl}`} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between rounded-3xl border border-foreground/8 bg-white p-6 shadow-luxe transition-all hover:-translate-y-0.5">
+              <a
+                href={`https://wa.me/${site.whatsappIntl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-between rounded-3xl border border-foreground/8 bg-white p-6 shadow-luxe transition-all hover:-translate-y-0.5"
+              >
                 <div className="flex items-center gap-4">
-                  <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-accent/60 to-beige-soft"><MessageCircle size={18} /></div>
+                  <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-accent/60 to-beige-soft">
+                    <MessageCircle size={18} />
+                  </div>
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-foreground/50">WhatsApp</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-foreground/50">
+                      WhatsApp
+                    </div>
                     <div className="font-serif text-lg">{site.whatsapp}</div>
                   </div>
                 </div>
               </a>
-              <a href={`mailto:${site.email}`} className="group flex items-center justify-between rounded-3xl border border-foreground/8 bg-white p-6 shadow-luxe transition-all hover:-translate-y-0.5">
+              <a
+                href={`mailto:${site.email}`}
+                className="group flex items-center justify-between rounded-3xl border border-foreground/8 bg-white p-6 shadow-luxe transition-all hover:-translate-y-0.5"
+              >
                 <div className="flex items-center gap-4">
-                  <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-accent/60 to-beige-soft"><Mail size={18} /></div>
+                  <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-accent/60 to-beige-soft">
+                    <Mail size={18} />
+                  </div>
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-foreground/50">Email</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-foreground/50">
+                      Email
+                    </div>
                     <div className="font-serif text-lg">{site.email}</div>
                   </div>
                 </div>
               </a>
               <div className="grid grid-cols-2 gap-3">
-                <a href={site.socials.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-3xl border border-foreground/8 bg-white p-5 shadow-luxe transition-all hover:-translate-y-0.5">
+                <a
+                  href={site.socials.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-3xl border border-foreground/8 bg-white p-5 shadow-luxe transition-all hover:-translate-y-0.5"
+                >
                   <Facebook size={18} /> <span className="text-sm">Facebook</span>
                 </a>
-                <a href={site.socials.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-3xl border border-foreground/8 bg-white p-5 shadow-luxe transition-all hover:-translate-y-0.5">
+                <a
+                  href={site.socials.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-3xl border border-foreground/8 bg-white p-5 shadow-luxe transition-all hover:-translate-y-0.5"
+                >
                   <Instagram size={18} /> <span className="text-sm">Instagram</span>
                 </a>
               </div>
@@ -98,7 +156,9 @@ export function Contact() {
               <div className="rounded-3xl border border-foreground/8 bg-white p-6 shadow-luxe">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-foreground/50">Admin</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-foreground/50">
+                      Admin
+                    </div>
                     <div className="mt-1 font-serif text-lg text-foreground">Dashboard Access</div>
                     <p className="mt-2 text-sm text-foreground/65">
                       Site owner login for admin panel access.
