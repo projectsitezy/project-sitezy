@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       // defer to avoid deadlock inside listener
       setTimeout(() => {
+        if (mounted) setLoading(true);
         applySession(newSession);
         qc.invalidateQueries();
       }, 0);
@@ -74,6 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, [qc]);
+
+  useEffect(() => {
+    if (!roleLoading) {
+      setLoading(false);
+    }
+  }, [roleLoading]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
