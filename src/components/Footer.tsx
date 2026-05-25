@@ -15,21 +15,72 @@ export function Footer() {
             </p>
           </div>
           <div className="text-sm">
-            <div className="mb-3 text-xs uppercase tracking-[0.2em] text-foreground/50">Explore</div>
+            <div className="mb-3 text-xs uppercase tracking-[0.2em] text-foreground/50">
+              Explore
+            </div>
             <ul className="space-y-2 text-foreground/75">
-              <li><a href="#services" className="hover:text-foreground">Services</a></li>
-              <li><a href="#packages" className="hover:text-foreground">Packages</a></li>
-              <li><a href="#portfolio" className="hover:text-foreground">Portfolio</a></li>
-              <li><a href="#faq" className="hover:text-foreground">FAQ</a></li>
+              <li>
+                <a href="#services" className="hover:text-foreground">
+                  Services
+                </a>
+              </li>
+              <li>
+                <a href="#packages" className="hover:text-foreground">
+                  Packages
+                </a>
+              </li>
+              <li>
+                <a href="#portfolio" className="hover:text-foreground">
+                  Portfolio
+                </a>
+              </li>
+              <li>
+                <a href="#faq" className="hover:text-foreground">
+                  FAQ
+                </a>
+              </li>
             </ul>
           </div>
           <div className="text-sm">
-            <div className="mb-3 text-xs uppercase tracking-[0.2em] text-foreground/50">Contact</div>
+            <div className="mb-3 text-xs uppercase tracking-[0.2em] text-foreground/50">
+              Contact
+            </div>
             <ul className="space-y-2 text-foreground/75">
-              <li><a href={`https://wa.me/${site.whatsappIntl}`} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">WhatsApp · {site.whatsapp}</a></li>
-              <li><a href={`mailto:${site.email}`} className="hover:text-foreground">{site.email}</a></li>
-              <li><a href={site.socials.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Facebook</a></li>
-              <li><a href={site.socials.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Instagram</a></li>
+              <li>
+                <a
+                  href={`https://wa.me/${site.whatsappIntl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground"
+                >
+                  WhatsApp · {site.whatsapp}
+                </a>
+              </li>
+              <li>
+                <a href={`mailto:${site.email}`} className="hover:text-foreground">
+                  {site.email}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={site.socials.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground"
+                >
+                  Facebook
+                </a>
+              </li>
+              <li>
+                <a
+                  href={site.socials.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground"
+                >
+                  Instagram
+                </a>
+              </li>
             </ul>
 
             <div className="mt-6 rounded-2xl border border-foreground/10 bg-card/70 p-4">

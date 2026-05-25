@@ -56,7 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
       // defer to avoid deadlock inside listener
       setTimeout(() => {
         if (mounted) setLoading(true);
@@ -87,7 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading: loading || roleLoading, signOut }}>
+    <AuthContext.Provider
+      value={{ user, session, isAdmin, loading: loading || roleLoading, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );

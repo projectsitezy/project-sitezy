@@ -11,7 +11,9 @@ const searchSchema = z.object({ redirect: z.string().optional().catch("/admin") 
 
 export const Route = createFileRoute("/login")({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: "Sign in — Project SITEZY" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Sign in — Project SITEZY" }, { name: "robots", content: "noindex" }],
+  }),
   component: LoginPage,
 });
 
@@ -60,21 +62,30 @@ function LoginPage() {
   return (
     <div className="grid min-h-screen place-items-center bg-background px-4 py-16">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft size={14} /> Back to site
         </Link>
         <div className="rounded-3xl border border-foreground/10 bg-card p-8 shadow-luxe">
-          <div className="mb-8 flex justify-center"><Logo /></div>
+          <div className="mb-8 flex justify-center">
+            <Logo />
+          </div>
           <h1 className="font-serif text-2xl text-foreground">
             {mode === "login" ? "Welcome back" : "Create an account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "login" ? "Sign in to access your dashboard." : "Sign up to manage your site."}
+            {mode === "login"
+              ? "Sign in to access your dashboard."
+              : "Sign up to manage your site."}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
-              <label className="text-xs uppercase tracking-wider text-muted-foreground">Email</label>
+              <label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Email
+              </label>
               <input
                 type="email"
                 required
@@ -84,7 +95,9 @@ function LoginPage() {
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider text-muted-foreground">Password</label>
+              <label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Password
+              </label>
               <input
                 type="password"
                 required
@@ -113,7 +126,9 @@ function LoginPage() {
           </button>
 
           <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground/80">
-            First-time admin? Sign up with <span className="font-medium text-foreground/80">evansheikh69@gmail.com</span> and the same email will get admin access automatically.
+            First-time admin? Sign up with{" "}
+            <span className="font-medium text-foreground/80">evansheikh69@gmail.com</span> and the
+            same email will get admin access automatically.
           </p>
         </div>
       </div>
