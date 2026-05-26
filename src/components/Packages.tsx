@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { packages, type Pkg } from "@/data/site";
+import { useQuery } from "@tanstack/react-query";
+import { packages as fallbackPackages, type Pkg } from "@/data/site";
+import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeInvalidate } from "@/hooks/use-realtime-invalidate";
 import { SectionTitle } from "./SectionTitle";
 import { Reveal } from "./Reveal";
 import { TiltCard } from "./TiltCard";
@@ -9,6 +12,28 @@ import { cn } from "@/lib/utils";
 
 export function Packages() {
   const [selected, setSelected] = useState<Pkg | null>(null);
+  useRealtimeInvalidate("packages", ["packages"]);
+
+  const { data } = useQuery({
+    queryKey: ["packages"],
+    queryFn: async (): Promise<Pkg[]> => {
+      const { data, error } = await supabase
+        .from("packages")
+        .select("name, tagline, price, features, highlighted, sort_order")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((p) => ({
+        name: p.name,
+        tagline: p.tagline ?? "",
+        price: p.price,
+        features: Array.isArray(p.features) ? (p.features as string[]) : [],
+        popular: !!p.highlighted,
+      }));
+    },
+  });
+
+  const items = data && data.length > 0 ? data : fallbackPackages;
 
   return (
     <section id="packages" className="relative py-24 md:py-32 bg-gradient-to-b from-transparent via-beige-soft/30 to-transparent">
@@ -19,8 +44,8 @@ export function Packages() {
           description="Pick a package. Submit your brief. We handle the rest."
         />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {packages.map((p, i) => (
-            <Reveal key={p.name} delay={i * 0.06}>
+          {items.map((p, i) => (
+            <Reveal key={`${p.name}-${i}`} delay={i * 0.06}>
               <TiltCard intensity={5} className="h-full">
                 <div
                   className={cn(
