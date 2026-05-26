@@ -362,7 +362,7 @@ function PackagesPanel() {
   });
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin", "packages"] });
-    qc.invalidateQueries({ queryKey: ["public", "packages"] });
+    qc.invalidateQueries({ queryKey: ["packages"] });
   };
 
   const add = async () => {
@@ -374,7 +374,8 @@ function PackagesPanel() {
   };
   const remove = async (id: string) => {
     if (!confirm("Delete this package?")) return;
-    await supabase.from("packages").delete().eq("id", id);
+    const { error } = await supabase.from("packages").delete().eq("id", id);
+    if (error) return toast.error(error.message);
     refresh();
   };
   const save = async (id: string, patch: any) => {
@@ -425,8 +426,8 @@ function PackageRow({ pkg, onSave, onRemove }: { pkg: any; onSave: (id: string, 
 function ReviewsPanel() {
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["admin", "reviews"], queryFn: async () => (await supabase.from("reviews").select("*").order("sort_order")).data ?? [] });
-  const refresh = () => { qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); qc.invalidateQueries({ queryKey: ["public", "reviews"] }); };
-  const add = async () => { await supabase.from("reviews").insert({ name: "New Reviewer", body: "Great work!", rating: 5, sort_order: (data?.length ?? 0) + 1 }); refresh(); };
+  const refresh = () => { qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); qc.invalidateQueries({ queryKey: ["reviews"] }); };
+  const add = async () => { const { error } = await supabase.from("reviews").insert({ name: "New Reviewer", body: "Great work!", rating: 5, sort_order: (data?.length ?? 0) + 1 }); if (error) return toast.error(error.message); refresh(); };
   return (
     <div>
       <Header title="Reviews" action={<button onClick={add} className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground"><Plus size={14}/> Add</button>} />
@@ -460,8 +461,8 @@ function ReviewRow({ review, refresh }: { review: any; refresh: () => void }) {
 function PortfolioPanel() {
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["admin", "portfolio"], queryFn: async () => (await supabase.from("portfolio_items").select("*").order("sort_order")).data ?? [] });
-  const refresh = () => { qc.invalidateQueries({ queryKey: ["admin", "portfolio"] }); qc.invalidateQueries({ queryKey: ["public", "portfolio"] }); };
-  const add = async () => { await supabase.from("portfolio_items").insert({ title: "New Project", category: "Website", sort_order: (data?.length ?? 0) + 1 }); refresh(); };
+  const refresh = () => { qc.invalidateQueries({ queryKey: ["admin", "portfolio"] }); qc.invalidateQueries({ queryKey: ["portfolio_items"] }); };
+  const add = async () => { const { error } = await supabase.from("portfolio_items").insert({ title: "New Project", category: "Website", sort_order: (data?.length ?? 0) + 1 }); if (error) return toast.error(error.message); refresh(); };
   return (
     <div>
       <Header title="Portfolio" action={<button onClick={add} className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground"><Plus size={14}/> Add</button>} />
@@ -508,8 +509,8 @@ function PortfolioRow({ item, refresh }: { item: any; refresh: () => void }) {
 function FaqsPanel() {
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["admin", "faqs"], queryFn: async () => (await supabase.from("faqs").select("*").order("sort_order")).data ?? [] });
-  const refresh = () => { qc.invalidateQueries({ queryKey: ["admin", "faqs"] }); qc.invalidateQueries({ queryKey: ["public", "faqs"] }); };
-  const add = async () => { await supabase.from("faqs").insert({ question: "New question?", answer: "Answer.", sort_order: (data?.length ?? 0) + 1 }); refresh(); };
+  const refresh = () => { qc.invalidateQueries({ queryKey: ["admin", "faqs"] }); qc.invalidateQueries({ queryKey: ["faqs"] }); };
+  const add = async () => { const { error } = await supabase.from("faqs").insert({ question: "New question?", answer: "Answer.", sort_order: (data?.length ?? 0) + 1 }); if (error) return toast.error(error.message); refresh(); };
   return (
     <div>
       <Header title="FAQs" action={<button onClick={add} className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground"><Plus size={14}/> Add</button>} />
