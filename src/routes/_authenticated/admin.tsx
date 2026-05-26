@@ -476,10 +476,16 @@ function PortfolioRow({ item, refresh }: { item: any; refresh: () => void }) {
   const [d, setD] = useState<any>(item);
   const [uploading, setUploading] = useState(false);
   const upload = async (f: File) => {
+    if (!f.type.startsWith("image/")) return toast.error("Please upload an image file.");
+    if (f.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB.");
     setUploading(true);
-    const ext = f.name.split(".").pop();
+    const ext = (f.name.split(".").pop() || "jpg").toLowerCase();
     const path = `portfolio/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("site-assets").upload(path, f);
+    const { error } = await supabase.storage.from("site-assets").upload(path, f, {
+      cacheControl: "31536000",
+      upsert: false,
+      contentType: f.type,
+    });
     setUploading(false);
     if (error) return toast.error(error.message);
     const { data: u } = supabase.storage.from("site-assets").getPublicUrl(path);
