@@ -1,12 +1,38 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import useEmblaCarousel from "embla-carousel-react";
-import { reviews } from "@/data/site";
+import { reviews as fallbackReviews } from "@/data/site";
+import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeInvalidate } from "@/hooks/use-realtime-invalidate";
 import { SectionTitle } from "./SectionTitle";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+
+type Review = { name: string; role: string; text: string; rating: number };
 
 export function Reviews() {
   const [emblaRef, embla] = useEmblaCarousel({ loop: true, align: "start" });
   const [, setIdx] = useState(0);
+  useRealtimeInvalidate("reviews", ["reviews"]);
+
+  const { data } = useQuery({
+    queryKey: ["reviews"],
+    queryFn: async (): Promise<Review[]> => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("name, role, body, rating, sort_order")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((r) => ({
+        name: r.name,
+        role: r.role ?? "",
+        text: r.body,
+        rating: r.rating,
+      }));
+    },
+  });
+
+  const items = data && data.length > 0 ? data : fallbackReviews;
 
   useEffect(() => {
     if (!embla) return;
@@ -23,12 +49,12 @@ export function Reviews() {
         <div className="relative">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-6">
-              {reviews.map((r) => (
-                <div key={r.name} className="min-w-0 shrink-0 grow-0 basis-full md:basis-1/2 lg:basis-1/3">
+              {items.map((r, i) => (
+                <div key={`${r.name}-${i}`} className="min-w-0 shrink-0 grow-0 basis-full md:basis-1/2 lg:basis-1/3">
                   <div className="h-full rounded-3xl border border-foreground/8 bg-white p-8 shadow-luxe">
                     <div className="mb-4 flex gap-1 text-foreground">
-                      {Array.from({ length: r.rating }).map((_, i) => (
-                        <Star key={i} size={14} fill="currentColor" />
+                      {Array.from({ length: r.rating }).map((_, j) => (
+                        <Star key={j} size={14} fill="currentColor" />
                       ))}
                     </div>
                     <p className="font-serif text-xl leading-snug text-balance">"{r.text}"</p>
