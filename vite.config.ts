@@ -3,6 +3,8 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { nitro } from "nitro/vite";
 
+// NITRO_PRESET=vercel (set in vercel.json build env) makes Nitro emit
+// .vercel/output in Vercel's Build Output API v3 format.
 export default defineConfig({
   cloudflare: false,
   plugins: [nitro()],
