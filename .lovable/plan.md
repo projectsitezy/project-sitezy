@@ -1,54 +1,48 @@
-Plan for GitHub + Vercel production readiness
+## GitHub + Vercel Deployment Plan
 
-1. Convert the TanStack Start build to Vercel
-- Add the official Nitro/Vercel adapter dependency.
-- Update `vite.config.ts` to use Nitro for Vercel and disable the Cloudflare build plugin path.
-- Remove the active dependency on the Cloudflare Worker entry during Vercel builds so the app builds to `.output` correctly.
-- Add `vercel.json` with:
-  - build command: `bun run build`
-  - install command: `bun install`
-  - output directory: `.output`
-  - framework preset: `null`
-- Keep the current UI/components unchanged.
+Ami project ke properly GitHub e push korar moto state e niye jabo and Vercel e smoothly deploy hobe seta nishchit korbo. UI/design kichu change hobe na.
 
-2. Fix portfolio admin-to-homepage sync properly
-- Standardize public query keys so admin invalidation and homepage reads target the same cache entries.
-- Update the admin portfolio add/edit/delete actions to:
-  - check and show database errors instead of silently failing
-  - invalidate the exact homepage portfolio query key
-  - optimistically update local cache where safe
-- Keep realtime invalidation for `portfolio_items`, so changes made in the admin panel instantly refresh the homepage when it is open.
+### 1. Vercel build config thik kora
+- `vite.config.ts` e `nitro()` plugin ke Vercel preset diye configure korbo (`preset: "vercel"`) jate `.vercel/output` properly generate hoy
+- `vercel.json` update korbo:
+  - `outputDirectory: ".vercel/output"` (Nitro Vercel preset er standard)
+  - `framework: null` rakhbo
+  - build/install command thik ache
+- `src/server.ts` (Cloudflare Worker entry) ke build theke baad dewar jonno conditional korbo — Vercel build e eta load hobe na
 
-3. Improve public data fetching and caching
-- Apply consistent query keys for portfolio, packages, reviews, FAQs, popup, chat, and settings.
-- Keep fast client caching, but invalidate immediately on realtime updates.
-- Select only the columns each homepage component needs.
-- Keep existing database indexes/realtime setup and add any missing safe indexes if needed.
+### 2. package.json scripts ensure kora
+- `build` script Nitro Vercel preset er sathe kaj korbe seta verify korbo
+- Unnecessary Cloudflare-only scripts (wrangler deploy ityadi) ke optional/dev-only korbo
 
-4. Optimize uploads and images
-- Improve admin portfolio image upload flow without changing the admin UI:
-  - validate image type/size before upload
-  - upload with cache-control headers
-  - use deterministic public URLs from the existing public storage bucket
-  - prevent double-submit while uploading/saving
-- Add lazy loading/async decoding where missing, including popup/admin preview images where appropriate.
-- Avoid heavy client work on first load and keep third-party chat loading async.
+### 3. .gitignore + repo hygiene
+- `.vercel`, `.nitro`, `.output`, `node_modules`, `dist`, `.env` — sob ignored ache seta confirm korbo
+- `.env.example` already ache, ota e Vercel e lagano env var list ache
 
-5. Production cleanup for GitHub/Vercel
-- Remove or ignore deployment artifacts that should not be committed/deployed, while keeping required config files.
-- Ensure `.gitignore` covers generated output and local deployment folders.
-- Confirm environment variables needed on Vercel are documented in a small deployment note:
-  - public backend URL/key for browser reads
-  - server backend URL/public key/service role key only if server-side backend access is used
-- Do not edit generated backend client/type files.
+### 4. Vercel deploy steps (ami document korbo)
+1. Lovable er GitHub integration diye repo push (chat input er + button → GitHub → Connect)
+2. Vercel e "New Project" → ei GitHub repo import
+3. Framework Preset: **Other** (vercel.json read korbe)
+4. Environment Variables add koro (Lovable Cloud → Backend theke copy):
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_SUPABASE_PROJECT_ID`
+   - `SUPABASE_URL`
+   - `SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+5. Deploy click
 
-6. Validation after implementation
-- Run the project’s verification command after code changes.
-- Check the portfolio flow by confirming admin mutation keys match homepage query keys and realtime invalidation.
-- Confirm the Vercel build config points to `.output` and no Cloudflare-only adapter is required for Vercel.
+### 5. Supabase Auth redirect URLs
+- Vercel domain (production + preview) ke Supabase Auth er "Site URL" / "Redirect URLs" e add korte hobe — eta ami document korbo, login flow tate break korbe na
 
-Expected result
-- Admin portfolio add/edit/delete changes appear on the homepage immediately.
-- The app is configured for GitHub-to-Vercel deployment.
-- Public pages load faster with cleaner caching, optimized fetches, and safer uploads.
-- The current website design remains exactly the same.
+### 6. Validation
+- Local e `bun run build` chaliye dekhbo `.vercel/output` generate hocche kina
+- Build error/warning thakle fix korbo
+
+### Files to change
+- `vite.config.ts` — Nitro Vercel preset
+- `vercel.json` — outputDirectory update
+- `src/server.ts` — Cloudflare-only guard (optional)
+- `.gitignore` — verify
+
+### What stays the same
+- Saari UI/components, routes, admin panel, portfolio sync logic — kichu touch hobe na
