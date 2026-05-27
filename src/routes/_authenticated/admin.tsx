@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -475,6 +475,8 @@ function PortfolioPanel() {
 function PortfolioRow({ item, refresh }: { item: any; refresh: () => void }) {
   const [d, setD] = useState<any>(item);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { setD(item); }, [item.id, item.updated_at]);
   const upload = async (f: File) => {
     if (!f.type.startsWith("image/")) return toast.error("Please upload an image file.");
     if (f.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB.");
@@ -490,6 +492,24 @@ function PortfolioRow({ item, refresh }: { item: any; refresh: () => void }) {
     if (error) return toast.error(error.message);
     const { data: u } = supabase.storage.from("site-assets").getPublicUrl(path);
     setD({ ...d, image_url: u.publicUrl });
+    toast.success("Image uploaded — click Save to apply.");
+  };
+  const save = async () => {
+    setSaving(true);
+    const payload = {
+      title: d.title,
+      category: d.category ?? null,
+      live_url: d.live_url ?? null,
+      image_url: d.image_url ?? null,
+      description: d.description ?? null,
+      sort_order: Number(d.sort_order) || 0,
+      active: !!d.active,
+    };
+    const { error } = await supabase.from("portfolio_items").update(payload).eq("id", item.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Saved");
+    refresh();
   };
   return (
     <div className="rounded-2xl border border-foreground/10 bg-card p-5 space-y-3">
@@ -503,8 +523,8 @@ function PortfolioRow({ item, refresh }: { item: any; refresh: () => void }) {
       <div className="flex items-center justify-between">
         <CheckField label="Active" checked={d.active} onChange={(v) => setD({ ...d, active: v })} />
         <div className="flex gap-2">
-          <button onClick={async () => { if (confirm("Delete?")) { await supabase.from("portfolio_items").delete().eq("id", item.id); refresh(); } }} className="rounded-full border border-destructive/30 px-3 py-1.5 text-xs text-destructive"><Trash2 size={12}/></button>
-          <button onClick={async () => { await supabase.from("portfolio_items").update(d).eq("id", item.id); toast.success("Saved"); refresh(); }} className="rounded-full bg-primary px-4 py-1.5 text-xs text-primary-foreground">Save</button>
+          <button onClick={async () => { if (confirm("Delete?")) { const { error } = await supabase.from("portfolio_items").delete().eq("id", item.id); if (error) return toast.error(error.message); refresh(); } }} className="rounded-full border border-destructive/30 px-3 py-1.5 text-xs text-destructive"><Trash2 size={12}/></button>
+          <button onClick={save} disabled={saving || uploading} className="rounded-full bg-primary px-4 py-1.5 text-xs text-primary-foreground disabled:opacity-50">{saving ? "Saving..." : "Save"}</button>
         </div>
       </div>
     </div>

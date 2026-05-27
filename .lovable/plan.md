@@ -1,48 +1,33 @@
-## GitHub + Vercel Deployment Plan
+## Problem
 
-Ami project ke properly GitHub e push korar moto state e niye jabo and Vercel e smoothly deploy hobe seta nishchit korbo. UI/design kichu change hobe na.
+In the admin Portfolio panel, clicking **Save** appears to do nothing and the uploaded picture doesn't show up on the homepage.
 
-### 1. Vercel build config thik kora
-- `vite.config.ts` e `nitro()` plugin ke Vercel preset diye configure korbo (`preset: "vercel"`) jate `.vercel/output` properly generate hoy
-- `vercel.json` update korbo:
-  - `outputDirectory: ".vercel/output"` (Nitro Vercel preset er standard)
-  - `framework: null` rakhbo
-  - build/install command thik ache
-- `src/server.ts` (Cloudflare Worker entry) ke build theke baad dewar jonno conditional korbo — Vercel build e eta load hobe na
+## Root cause
 
-### 2. package.json scripts ensure kora
-- `build` script Nitro Vercel preset er sathe kaj korbe seta verify korbo
-- Unnecessary Cloudflare-only scripts (wrangler deploy ityadi) ke optional/dev-only korbo
+In `src/routes/_authenticated/admin.tsx` → `PortfolioRow`:
 
-### 3. .gitignore + repo hygiene
-- `.vercel`, `.nitro`, `.output`, `node_modules`, `dist`, `.env` — sob ignored ache seta confirm korbo
-- `.env.example` already ache, ota e Vercel e lagano env var list ache
+1. **Save errors are swallowed.** The Save click calls `supabase.from("portfolio_items").update(d)...` without checking the returned `error`. If RLS, a bad column, or a stale value rejects the write, the user still sees a green "Saved" toast and nothing changes in the DB. That's why the picture never updates on the homepage — the row in the DB was never written.
+2. **The whole row object is sent back as the update payload**, including `id`, `created_at`, `updated_at`. Sending `updated_at` (and `id`) back can cause the update to no-op or fail under stricter policies.
+3. **Local row state never re-syncs** after refresh. `useState(item)` only seeds on mount, so even when the parent refetches, the form keeps showing old values — making it feel like "the picture didn't change".
 
-### 4. Vercel deploy steps (ami document korbo)
-1. Lovable er GitHub integration diye repo push (chat input er + button → GitHub → Connect)
-2. Vercel e "New Project" → ei GitHub repo import
-3. Framework Preset: **Other** (vercel.json read korbe)
-4. Environment Variables add koro (Lovable Cloud → Backend theke copy):
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`
-   - `VITE_SUPABASE_PROJECT_ID`
-   - `SUPABASE_URL`
-   - `SUPABASE_PUBLISHABLE_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-5. Deploy click
+## Fix
 
-### 5. Supabase Auth redirect URLs
-- Vercel domain (production + preview) ke Supabase Auth er "Site URL" / "Redirect URLs" e add korte hobe — eta ami document korbo, login flow tate break korbe na
+Edit only `PortfolioRow` in `src/routes/_authenticated/admin.tsx`:
 
-### 6. Validation
-- Local e `bun run build` chaliye dekhbo `.vercel/output` generate hocche kina
-- Build error/warning thakle fix korbo
+- Save handler:
+  - Build a clean payload with only editable fields: `title, category, live_url, image_url, sort_order, active, description`.
+  - `await` the update, capture `error`, and on error show `toast.error(error.message)` and return.
+  - Only show "Saved" and `refresh()` on success.
+- Add a `useEffect` that syncs local `d` from the `item` prop whenever `item.updated_at` changes, so the row reflects fresh DB values after refetch.
+- Keep the upload flow exactly as-is (it already validates type/size and sets `image_url` in local state).
 
-### Files to change
-- `vite.config.ts` — Nitro Vercel preset
-- `vercel.json` — outputDirectory update
-- `src/server.ts` — Cloudflare-only guard (optional)
-- `.gitignore` — verify
+No UI/design changes. No schema, RLS, or other component changes.
 
-### What stays the same
-- Saari UI/components, routes, admin panel, portfolio sync logic — kichu touch hobe na
+## Files
+
+- `src/routes/_authenticated/admin.tsx` — `PortfolioRow` only.
+
+## Verification
+
+- Edit a portfolio item, change the image, click Save → success toast appears, and the homepage `/` Portfolio section shows the new image immediately (realtime + cache invalidation already wired).
+- If the write is ever rejected, the actual Supabase error message now appears in a toast instead of a false success.
