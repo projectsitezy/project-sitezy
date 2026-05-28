@@ -9,7 +9,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Logo } from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 type Tab = "overview" | "orders" | "messages" | "packages" | "reviews" | "portfolio" | "faqs" | "settings" | "popup";
 
@@ -58,7 +57,6 @@ function AdminDashboard() {
               <p className="truncate">{user?.email}</p>
             </div>
             <div className="flex gap-2">
-              <ThemeToggle />
               <Link to="/" className="flex-1 grid place-items-center rounded-xl border border-foreground/10 text-xs">
                 View site
               </Link>
@@ -495,21 +493,47 @@ function PortfolioRow({ item, refresh }: { item: any; refresh: () => void }) {
     toast.success("Image uploaded — click Save to apply.");
   };
   const save = async () => {
+    if (!d.title || !d.title.trim()) {
+      toast.error("Title is required.");
+      return;
+    }
     setSaving(true);
-    const payload = {
-      title: d.title,
-      category: d.category ?? null,
-      live_url: d.live_url ?? null,
-      image_url: d.image_url ?? null,
-      description: d.description ?? null,
-      sort_order: Number(d.sort_order) || 0,
-      active: !!d.active,
-    };
-    const { error } = await supabase.from("portfolio_items").update(payload).eq("id", item.id);
-    setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success("Saved");
-    refresh();
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        toast.error("Session expired. Please log in again.");
+        return;
+      }
+      const payload = {
+        title: d.title,
+        category: d.category ?? null,
+        live_url: d.live_url ?? null,
+        image_url: d.image_url ?? null,
+        description: d.description ?? null,
+        sort_order: Number(d.sort_order) || 0,
+        active: !!d.active,
+      };
+      const { data: updated, error } = await supabase
+        .from("portfolio_items")
+        .update(payload)
+        .eq("id", item.id)
+        .select()
+        .maybeSingle();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      if (!updated) {
+        toast.error("Saved no rows. You may not have admin permission — please re-login.");
+        return;
+      }
+      toast.success("Saved");
+      refresh();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
   return (
     <div className="rounded-2xl border border-foreground/10 bg-card p-5 space-y-3">
