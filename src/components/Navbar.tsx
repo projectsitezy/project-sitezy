@@ -4,7 +4,6 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 
 const links = [
   { href: "#home", label: "Home" },
