@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Menu, X, LayoutDashboard } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
-import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -43,7 +43,6 @@ export function Navbar() {
           </button>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             {isAdmin && (
               <Link to="/admin" className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-full border border-foreground/15 hover:bg-accent/40" aria-label="Admin">
                 <LayoutDashboard size={14} />
